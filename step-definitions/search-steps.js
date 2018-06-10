@@ -1,32 +1,43 @@
 module.exports = function () {
 
-    this.When(/^I search Google for "([^"]*)"$/, function (searchQuery) {
 
-        return helpers.loadPage('http://www.google.com').then(function() {
+    this.When(/^I goto "([^"]*)"$/, function (url) {
 
-            // use a method on the page object which also returns a promise
-            return page.gosearch.preformSearch(searchQuery);
+        return helpers.loadPage(url);
+    });
+
+    this.Then(/^I can see "([^"]*)" section$/, function (section) {
+
+        return driver.wait(until.elementsLocated(by.css('div.news-post__listing-header')), 10000).then(function() {
+
+            return driver.findElement(by.css('div.news-post__listing-header .block-header__heading')).getText();
+
+        }) .then(function (element) {
+
+        expect(element.toLowerCase()).to.equal(section + "1");
+
         });
+
     });
 
-    this.Then(/^I should see "([^"]*)" in the results$/, function (keywords) {
+    this.Then(/^I goto "([^"]*)" page$/, function (page) {
 
-        // resolves if an item on the page contains text
-        return driver.wait(until.elementsLocated(by.partialLinkText(keywords)), 10000);
+        return helpers.loadPage(page);
     });
 
-    this.Then(/^I should see some results$/, function () {
+    this.Then(/^The header sxetion should contain "([^"]*)"$/, function (headerText) {
 
-        // driver wait returns a promise so return that
-        return driver.wait(until.elementsLocated(by.css('div.g')), 10000).then(function() {
+        return driver.wait(until.elementsLocated(by.css('div.page-header')), 10000).then(function() {
 
             // return the promise of an element to the following then.
-            return driver.findElements(by.css('div.g'));
-        })
-        .then(function (elements) {
+            return driver.findElement(by.css('div.page-header h1')).getText();
+
+        }) .then(function (element) {
 
             // verify this element has children
-            expect(elements.length).to.not.equal(0);
+            expect(element.toLowerCase()).to.equal(headerText);
+
         });
     });
+
 };
